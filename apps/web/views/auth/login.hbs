@@ -1,0 +1,37 @@
+<div style="min-height:100vh;background:var(--green-950);display:flex;align-items:center;justify-content:center;padding:2rem;">
+  <div style="width:100%;max-width:420px;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <a href="/" style="display:inline-flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;">
+        <span class="brand-icon" style="font-size:1rem;padding:6px 10px;">RSE</span>
+        <span style="color:white;font-family:var(--font-heading);font-weight:600;">Rwanda Stock Exchange</span>
+      </a>
+      <h1 style="color:white;font-size:1.75rem;margin-bottom:0.5rem;">Welcome back</h1>
+      <p style="color:var(--green-300);">Sign in to your RSE account</p>
+    </div>
+
+    {{#if error}}
+    <div class="alert alert-danger">⚠ {{error}}</div>
+    {{/if}}
+
+    <div class="card">
+      <div class="card-body" style="padding:2rem;">
+        <form action="/auth/login" method="POST">
+          <input type="hidden" name="redirect" value="{{redirect}}">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" name="email" class="form-control" placeholder="you@example.com" required autofocus>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="btn btn-green btn-lg btn-block" style="margin-top:0.5rem;">Sign In →</button>
+        </form>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:var(--green-300);margin-top:1.5rem;font-size:0.9rem;">
+      Don't have an account? <a href="/auth/register" style="color:var(--gold-300);font-weight:600;">Create one free</a>
+    </p>
+  </div>
+</div>

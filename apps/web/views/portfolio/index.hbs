@@ -1,0 +1,129 @@
+<section class="page-hero">
+  <div class="container">
+    <h1>My Portfolio</h1>
+    <p>Your RSE holdings, performance and trade history</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {{#if portfolio}}
+    <div class="grid-4 mb-4">
+      <div class="stat-card">
+        <div class="stat-label">Portfolio Value</div>
+        <div class="stat-value">{{formatCurrency portfolio.summary.totalValue 'RWF'}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Cost Basis</div>
+        <div class="stat-value">{{formatCurrency portfolio.summary.totalCost 'RWF'}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unrealised P&amp;L</div>
+        <div class="stat-value {{#if (positive portfolio.summary.totalUnrealizedPnl)}}positive{{else}}negative{{/if}}">
+          {{#if (positive portfolio.summary.totalUnrealizedPnl)}}+{{/if}}{{formatCurrency portfolio.summary.totalUnrealizedPnl 'RWF'}}
+        </div>
+        <div class="stat-change {{#if (positive portfolio.summary.totalUnrealizedPnlPercent)}}positive{{else}}negative{{/if}}">
+          {{formatPct portfolio.summary.totalUnrealizedPnlPercent}}
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Holdings</div>
+        <div class="stat-value">{{portfolio.summary.holdingsCount}}</div>
+      </div>
+    </div>
+
+    {{#if portfolio.holdings.length}}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>Current Holdings</h3>
+        <a href="/orders" class="btn btn-green btn-sm">Place Order</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Security</th>
+              <th class="text-right">Qty</th>
+              <th class="text-right">Avg Cost</th>
+              <th class="text-right">Current Price</th>
+              <th class="text-right">Current Value</th>
+              <th class="text-right">Total Cost</th>
+              <th class="text-right">P&amp;L</th>
+              <th class="text-right">P&amp;L %</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each portfolio.holdings}}
+            <tr>
+              <td>
+                <span class="ticker-badge">{{this.security.ticker}}</span>
+                <div class="text-xs text-muted mt-1">{{this.security.companyName}}</div>
+              </td>
+              <td class="text-right fw-600">{{this.quantity}}</td>
+              <td class="text-right">{{formatCurrency this.averageCost ''}}</td>
+              <td class="text-right">{{formatCurrency this.security.currentPrice ''}}</td>
+              <td class="text-right fw-600">{{formatCurrency this.currentValue 'RWF'}}</td>
+              <td class="text-right">{{formatCurrency this.totalCost 'RWF'}}</td>
+              <td class="text-right {{#if (positive this.unrealizedPnl)}}positive{{else}}negative{{/if}}">
+                {{#if (positive this.unrealizedPnl)}}+{{/if}}{{formatCurrency this.unrealizedPnl ''}}
+              </td>
+              <td class="text-right {{#if (positive this.unrealizedPnlPercent)}}positive{{else}}negative{{/if}}">
+                {{formatPct this.unrealizedPnlPercent}}
+              </td>
+              <td>
+                <a href="/securities/{{this.securityId}}" class="btn btn-secondary btn-sm">Trade</a>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {{else}}
+    <div class="empty-state">
+      <div class="empty-state-icon">📊</div>
+      <h3>No holdings yet</h3>
+      <p>Browse securities and place your first buy order to start building your portfolio</p>
+      <a href="/securities" class="btn btn-green mt-3">Browse Securities</a>
+    </div>
+    {{/if}}
+    {{/if}}
+
+    {{#if trades.length}}
+    <div class="card">
+      <div class="card-header"><h3>Recent Trade History</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Security</th>
+              <th>Side</th>
+              <th class="text-right">Qty</th>
+              <th class="text-right">Price</th>
+              <th class="text-right">Total Value</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each trades}}
+            <tr>
+              <td class="text-xs text-muted">{{this.tradeReference}}</td>
+              <td><span class="ticker-badge">{{this.security.ticker}}</span></td>
+              <td><span class="badge {{badgeClass (eq this.buyerId ../user.id 'buy' 'sell')}}">{{#if (eq this.buyerId ../user.id)}}BUY{{else}}SELL{{/if}}</span></td>
+              <td class="text-right">{{this.quantity}}</td>
+              <td class="text-right">{{formatCurrency this.price ''}}</td>
+              <td class="text-right fw-600">{{formatCurrency this.totalValue 'RWF'}}</td>
+              <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+              <td class="text-sm text-muted">{{formatDate this.executedAt}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+</section>

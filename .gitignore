@@ -1,0 +1,5 @@
+.env
+.env.*
+config/
+*.config.js
+*.config.tsnode_modules

@@ -1,0 +1,122 @@
+<section class="page-hero">
+  <div class="container">
+    <h1>Orders</h1>
+    <p>Place buy/sell orders and track their execution status</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {{#if success}}<div class="alert alert-success">✓ {{success}}</div>{{/if}}
+    {{#if error}}<div class="alert alert-danger">⚠ {{error}}</div>{{/if}}
+
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start;">
+
+      <!-- Orders Table -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h3>My Orders</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Security</th>
+                  <th>Side</th>
+                  <th>Type</th>
+                  <th class="text-right">Qty</th>
+                  <th class="text-right">Limit Price</th>
+                  <th class="text-right">Executed At</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each orders}}
+                <tr>
+                  <td><span class="ticker-badge">{{this.security.ticker}}</span></td>
+                  <td><span class="badge {{badgeClass this.side}}">{{upper this.side}}</span></td>
+                  <td class="text-sm">{{upper this.type}}</td>
+                  <td class="text-right">{{this.quantity}}</td>
+                  <td class="text-right text-sm">{{#if this.limitPrice}}{{formatCurrency this.limitPrice ''}}{{else}}Market{{/if}}</td>
+                  <td class="text-right text-sm">{{#if this.executedPrice}}{{formatCurrency this.executedPrice ''}}{{else}}—{{/if}}</td>
+                  <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+                  <td class="text-xs text-muted">{{formatDate this.createdAt}}</td>
+                  <td>
+                    {{#eq this.status 'pending'}}
+                    <form action="/orders/{{this.id}}/cancel" method="POST" style="display:inline;">
+                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this order?')">Cancel</button>
+                    </form>
+                    {{/eq}}
+                  </td>
+                </tr>
+                {{else}}
+                <tr>
+                  <td colspan="9" style="text-align:center;padding:3rem;">
+                    <div class="empty-state-icon">📋</div>
+                    <p class="text-muted">No orders placed yet</p>
+                  </td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Place Order Panel -->
+      <div>
+        <div class="trade-panel">
+          <div class="trade-tabs">
+            <button class="trade-tab buy active" onclick="switchOrderTab('buy')">Buy</button>
+            <button class="trade-tab sell" onclick="switchOrderTab('sell')">Sell</button>
+          </div>
+          <div class="trade-body">
+            <form action="/orders" method="POST">
+              <input type="hidden" name="side" id="orderSide" value="buy">
+              <div class="form-group">
+                <label class="form-label">Security</label>
+                <select name="securityId" id="securitySelect" class="form-control" required>
+                  <option value="">Loading…</option>
+                </select>
+                <p class="form-hint" id="currentPriceHint"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Order Type</label>
+                <select name="type" id="orderType" class="form-control">
+                  <option value="market">Market Order</option>
+                  <option value="limit">Limit Order</option>
+                </select>
+              </div>
+              <div class="form-group" id="limitPriceRow" style="display:none;">
+                <label class="form-label">Limit Price (RWF)</label>
+                <input type="number" name="limitPrice" class="form-control" step="0.0001" min="0.0001">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Quantity (Shares)</label>
+                <input type="number" name="quantity" class="form-control" min="1" placeholder="e.g. 100" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notes (optional)</label>
+                <input type="text" name="notes" class="form-control" placeholder="Reference or instructions">
+              </div>
+              <button type="submit" id="orderSubmitBtn" class="btn btn-green btn-lg btn-block">Place Buy Order</button>
+              <p style="font-size:0.72rem;color:var(--neutral-400);text-align:center;margin-top:0.75rem;">
+                Market orders execute immediately · Limit orders queue until matched · T+2 settlement · 1% commission
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const securitiesData = {{{securities}}};
+    populateSecuritySelect(securitiesData);
+  });
+</script>

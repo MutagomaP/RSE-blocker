@@ -1,0 +1,125 @@
+<section class="page-hero">
+  <div class="container">
+    <h1>Dashboard</h1>
+    <p>Welcome back{{#if user}}, {{user.firstName}}{{/if}} — here's your RSE overview</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Portfolio Summary -->
+    <div class="section-header mb-3">
+      <h2>Portfolio Summary</h2>
+    </div>
+    {{#if portfolio}}
+    <div class="grid-4 mb-4">
+      <div class="stat-card">
+        <div class="stat-label">Portfolio Value</div>
+        <div class="stat-value">{{formatCurrency portfolio.summary.totalValue 'RWF'}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unrealised P&amp;L</div>
+        <div class="stat-value {{#if (positive portfolio.summary.totalUnrealizedPnl)}}positive{{else}}negative{{/if}}">
+          {{formatCurrency portfolio.summary.totalUnrealizedPnl 'RWF'}}
+        </div>
+        <div class="stat-change {{#if (positive portfolio.summary.totalUnrealizedPnlPercent)}}positive{{else}}negative{{/if}}">
+          {{formatPct portfolio.summary.totalUnrealizedPnlPercent}}
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Holdings</div>
+        <div class="stat-value">{{portfolio.summary.holdingsCount}}</div>
+        <div class="stat-change"><a href="/portfolio" style="color:var(--green-600);">View all →</a></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Orders</div>
+        <div class="stat-value">{{orders.length}}</div>
+        <div class="stat-change"><a href="/orders" style="color:var(--green-600);">Manage →</a></div>
+      </div>
+    </div>
+    {{/if}}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+
+      <!-- Recent Orders -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Orders</h3>
+          <a href="/orders" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        {{#if orders.length}}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Security</th><th>Side</th><th class="text-right">Qty</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {{#each orders}}
+              <tr>
+                <td><span class="ticker-badge">{{this.security.ticker}}</span></td>
+                <td><span class="badge {{badgeClass this.side}}">{{upper this.side}}</span></td>
+                <td class="text-right">{{this.quantity}}</td>
+                <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        {{else}}
+        <div class="card-body">
+          <div class="empty-state" style="padding:2rem;">
+            <p class="text-muted">No orders yet</p>
+            <a href="/orders" class="btn btn-green btn-sm mt-2">Place First Order</a>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Market Snapshot -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Market Snapshot</h3>
+          <a href="/market" class="btn btn-secondary btn-sm">Full Market →</a>
+        </div>
+        <div class="card-body">
+          {{#if market}}
+          <div style="display:flex;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--neutral-100);">
+            <div>
+              <div class="text-xs text-muted">RSI Index</div>
+              <div class="fw-700" style="font-size:1.5rem;font-family:var(--font-heading);">{{market.indices.RSI.value}}</div>
+            </div>
+            <div class="{{#if (positive market.indices.RSI.change)}}positive{{else}}negative{{/if}}" style="text-align:right;">
+              <div class="fw-600">{{#if (positive market.indices.RSI.change)}}▲{{else}}▼{{/if}} {{abs market.indices.RSI.change}}%</div>
+              <div class="text-xs">Today</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:1rem;">
+            <span class="text-muted">Advancers</span>
+            <span class="positive fw-600">{{market.breadth.advancers}}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:1rem;">
+            <span class="text-muted">Decliners</span>
+            <span class="negative fw-600">{{market.breadth.decliners}}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:1rem;">
+            <span class="text-muted">Unchanged</span>
+            <span class="fw-600">{{market.breadth.unchanged}}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding-top:1rem;border-top:1px solid var(--neutral-100);">
+            <span class="text-muted">Trading Hours</span>
+            <span class="fw-600">{{market.tradingHours.open}}–{{market.tradingHours.close}} EAT</span>
+          </div>
+          {{else}}
+          <p class="text-muted">Market data unavailable</p>
+          {{/if}}
+        </div>
+        <div class="card-footer" style="display:flex;gap:0.5rem;">
+          <a href="/orders" class="btn btn-green btn-sm" style="flex:1;text-align:center;">Buy</a>
+          <a href="/orders" class="btn btn-danger btn-sm" style="flex:1;text-align:center;">Sell</a>
+          <a href="/portfolio" class="btn btn-secondary btn-sm" style="flex:1;text-align:center;">Portfolio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

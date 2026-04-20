@@ -1,0 +1,98 @@
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/brokers">Brokers</a><span class="breadcrumb-sep">›</span><span>{{broker.firmName}}</span></div>
+    <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+      <div class="broker-logo" style="width:64px;height:64px;font-size:1.4rem;background:var(--green-700);color:white;">
+        {{upper (truncate broker.firmName 2)}}
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.35rem;">
+          <span class="badge {{badgeClass broker.status}}">{{upper broker.status}}</span>
+          {{#if broker.rating}}<span class="badge badge-warning">⭐ {{broker.rating}}/5</span>{{/if}}
+        </div>
+        <h1 style="color:white;">{{broker.firmName}}</h1>
+        <p style="color:var(--green-200);">License: {{broker.licenseNumber}} · {{broker.district}}, Rwanda</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;">
+      <div>
+        <div class="grid-4 mb-3">
+          <div class="stat-card"><div class="stat-label">Commission Rate</div><div class="stat-value">{{broker.commissionRate}}%</div></div>
+          <div class="stat-card"><div class="stat-label">Total Clients</div><div class="stat-value">{{broker.totalClients}}</div></div>
+          <div class="stat-card"><div class="stat-label">Total Trades</div><div class="stat-value">{{broker.totalTrades}}</div></div>
+          <div class="stat-card"><div class="stat-label">Volume Traded</div><div class="stat-value" style="font-size:1rem;">{{formatCurrency broker.totalVolumeTraded 'RWF'}}</div></div>
+        </div>
+
+        {{#if broker.description}}
+        <div class="card mb-3">
+          <div class="card-header"><h3>About {{broker.firmName}}</h3></div>
+          <div class="card-body"><p>{{broker.description}}</p></div>
+        </div>
+        {{/if}}
+
+        {{#if broker.specializations.length}}
+        <div class="card">
+          <div class="card-header"><h3>Specializations</h3></div>
+          <div class="card-body" style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            {{#each broker.specializations}}
+            <span class="badge badge-secondary" style="font-size:0.8rem;padding:4px 10px;">{{this}}</span>
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      <div>
+        <div class="card mb-3">
+          <div class="card-header"><h3>Contact &amp; Details</h3></div>
+          <div class="card-body" style="font-size:0.875rem;">
+            {{#if broker.user}}
+            <div style="padding:0.5rem 0;border-bottom:1px solid var(--neutral-50);">
+              <span class="text-muted">Contact</span><br>
+              <span class="fw-600">{{broker.user.firstName}} {{broker.user.lastName}}</span>
+            </div>
+            {{/if}}
+            {{#if broker.officeAddress}}
+            <div style="padding:0.5rem 0;border-bottom:1px solid var(--neutral-50);">
+              <span class="text-muted">Office</span><br>
+              <span>{{broker.officeAddress}}</span>
+            </div>
+            {{/if}}
+            {{#if broker.website}}
+            <div style="padding:0.5rem 0;border-bottom:1px solid var(--neutral-50);">
+              <span class="text-muted">Website</span><br>
+              <a href="{{broker.website}}" target="_blank" style="color:var(--green-600);">{{broker.website}}</a>
+            </div>
+            {{/if}}
+            <div style="padding:0.5rem 0;">
+              <span class="text-muted">License Expires</span><br>
+              <span>{{formatDate broker.licenseExpiryDate}}</span>
+            </div>
+          </div>
+        </div>
+
+        {{#if isLoggedIn}}
+        <div class="card">
+          <div class="card-body" style="text-align:center;">
+            <h3 style="margin-bottom:0.5rem;">Trade via {{broker.firmName}}</h3>
+            <p class="text-sm text-muted mb-3">Place orders with this broker as your intermediary</p>
+            <a href="/orders?brokerId={{broker.id}}" class="btn btn-green btn-block">Place an Order</a>
+          </div>
+        </div>
+        {{else}}
+        <div class="card">
+          <div class="card-body" style="text-align:center;">
+            <p class="text-sm text-muted mb-3">Sign in to place trades via this broker</p>
+            <a href="/auth/register" class="btn btn-primary btn-block">Open Account</a>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</section>

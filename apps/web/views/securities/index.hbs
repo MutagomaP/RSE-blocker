@@ -1,0 +1,68 @@
+<!-- securities/index.hbs -->
+<section class="page-hero">
+  <div class="container">
+    <h1>Listed Securities</h1>
+    <p>All equities, bonds and ETFs trading on the Rwanda Stock Exchange</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="card mb-3" style="padding:1.25rem 1.5rem;">
+      <form action="/securities" method="GET" style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+        <div class="form-group" style="margin:0;flex:1;min-width:200px;">
+          <label class="form-label">Search</label>
+          <input type="text" name="search" class="form-control" placeholder="Ticker or company name…" value="{{search}}">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Type</label>
+          <select name="type" class="form-control">
+            <option value="">All Types</option>
+            <option value="equity" {{#eq type 'equity'}}selected{{/eq}}>Equity</option>
+            <option value="bond" {{#eq type 'bond'}}selected{{/eq}}>Bond</option>
+            <option value="etf" {{#eq type 'etf'}}selected{{/eq}}>ETF</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-green">Search</button>
+        <a href="/securities" class="btn btn-secondary">Clear</a>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Company Name</th>
+              <th>Type</th>
+              <th>Sector</th>
+              <th class="text-right">Price (RWF)</th>
+              <th class="text-right">Market Cap</th>
+              <th class="text-right">Div. Yield</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each securities}}
+            <tr>
+              <td><span class="ticker-badge">{{this.ticker}}</span></td>
+              <td class="fw-600">{{this.companyName}}</td>
+              <td><span class="badge badge-info">{{upper this.type}}</span></td>
+              <td class="text-sm text-muted">{{this.sector}}</td>
+              <td class="text-right price-cell">{{formatCurrency this.currentPrice ''}}</td>
+              <td class="text-right text-sm">{{#if this.marketCap}}{{formatCurrency this.marketCap 'RWF'}}{{else}}—{{/if}}</td>
+              <td class="text-right text-sm">{{#if this.dividendYield}}{{formatPct this.dividendYield}}{{else}}—{{/if}}</td>
+              <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+              <td><a href="/securities/{{this.id}}" class="btn btn-secondary btn-sm">View</a></td>
+            </tr>
+            {{else}}
+            <tr><td colspan="9" class="text-center text-muted" style="padding:2rem">No securities found</td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,67 @@
+<section class="page-hero">
+  <div class="container">
+    <h1>Licensed Brokers</h1>
+    <p>CMA-licensed stockbroker firms authorized to execute trades on the Rwanda Stock Exchange</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="alert alert-info mb-4">
+      ℹ All brokers listed here hold a valid Capital Markets Authority (CMA) Rwanda license. 
+      Contact a broker to open a CSD account and begin trading.
+    </div>
+
+    {{#if brokers.length}}
+    <div class="grid-3">
+      {{#each brokers}}
+      <div class="broker-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+          <div class="broker-logo">{{upper (truncate this.firmName 2)}}</div>
+          <span class="badge {{badgeClass this.status}}">{{upper this.status}}</span>
+        </div>
+        <div class="broker-name">{{this.firmName}}</div>
+        <div class="broker-license">License No: {{this.licenseNumber}}</div>
+        {{#if this.district}}<div class="text-sm text-muted mb-1">📍 {{this.district}}, Rwanda</div>{{/if}}
+        <p class="broker-desc">{{truncate this.description 100}}</p>
+
+        {{#if this.specializations.length}}
+        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+          {{#each this.specializations}}
+          <span class="badge badge-secondary" style="font-size:0.65rem;">{{this}}</span>
+          {{/each}}
+        </div>
+        {{/if}}
+
+        <div class="broker-meta">
+          <div class="broker-meta-item">
+            <div class="broker-meta-val">{{this.commissionRate}}%</div>
+            <div class="broker-meta-lbl">Commission</div>
+          </div>
+          <div class="broker-meta-item">
+            <div class="broker-meta-val">{{this.totalTrades}}</div>
+            <div class="broker-meta-lbl">Trades</div>
+          </div>
+          <div class="broker-meta-item">
+            <div class="broker-meta-val">{{this.totalClients}}</div>
+            <div class="broker-meta-lbl">Clients</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+          <a href="/brokers/{{this.id}}" class="btn btn-outline btn-sm" style="flex:1;text-align:center;">View Profile</a>
+          {{#if isLoggedIn}}
+          <a href="/orders?brokerId={{this.id}}" class="btn btn-green btn-sm" style="flex:1;text-align:center;">Trade via Broker</a>
+          {{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="empty-state">
+      <div class="empty-state-icon">🏦</div>
+      <h3>No licensed brokers yet</h3>
+      <p>Broker profiles will appear here once approved by CMA Rwanda</p>
+    </div>
+    {{/if}}
+  </div>
+</section>

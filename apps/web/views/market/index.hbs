@@ -1,0 +1,147 @@
+<section class="page-hero">
+  <div class="container">
+    <h1>📊 Live Market</h1>
+    <p>Real-time data from the Rwanda Stock Exchange — Kigali, Rwanda (EAT)</p>
+  </div>
+</section>
+
+<section class="section-sm" style="background:var(--neutral-50);border-bottom:1px solid var(--neutral-100);">
+  <div class="container">
+    {{#if market}}
+    <div class="grid-3 mb-3">
+      {{#each market.indices}}
+      <div class="index-card">
+        <div class="index-name">{{@key}} Index</div>
+        <div class="index-value {{#if (positive this.change)}}positive{{else}}negative{{/if}}">{{this.value}}</div>
+        <div class="index-change {{#if (positive this.change)}}positive{{else}}negative{{/if}}">
+          {{#if (positive this.change)}}▲{{else}}▼{{/if}} {{abs this.change}}% today
+        </div>
+        <div class="index-currency">Quoted in {{this.currency}}</div>
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="grid-4">
+      <div class="stat-card">
+        <div class="stat-label">Market Cap</div>
+        <div class="stat-value" style="font-size:1.25rem;">{{formatCurrency market.totalMarketCap 'RWF'}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Volume</div>
+        <div class="stat-value" style="font-size:1.25rem;">{{market.totalVolume}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Breadth</div>
+        <div class="stat-value" style="font-size:1rem;display:flex;gap:0.5rem;align-items:center;margin-top:0.5rem;">
+          <span class="positive">▲{{market.breadth.advancers}}</span>
+          <span class="text-muted">—{{market.breadth.unchanged}}</span>
+          <span class="negative">▼{{market.breadth.decliners}}</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Settlement</div>
+        <div class="stat-value" style="font-size:1.5rem;">T+2</div>
+        <div class="stat-change text-muted text-xs">09:00–12:00 EAT</div>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:3rem;">
+      <div class="card">
+        <div class="card-header" style="background:var(--green-50);">
+          <h3 style="color:var(--green-700);">🟢 Top Gainers</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ticker</th><th>Price</th><th class="text-right">Change %</th></tr></thead>
+            <tbody>
+              {{#if market}}{{#each market.gainers}}
+              <tr>
+                <td><a href="/securities/{{this.id}}" class="ticker-badge">{{this.ticker}}</a></td>
+                <td>{{formatCurrency this.currentPrice ''}}</td>
+                <td class="text-right change-cell up">+{{abs this.changePct}}%</td>
+              </tr>
+              {{else}}<tr><td colspan="3" class="text-center text-muted" style="padding:1.5rem">No data</td></tr>{{/each}}
+              {{/if}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" style="background:var(--red-50);">
+          <h3 style="color:var(--red-500);">🔴 Top Losers</h3>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ticker</th><th>Price</th><th class="text-right">Change %</th></tr></thead>
+            <tbody>
+              {{#if market}}{{#each market.losers}}
+              <tr>
+                <td><a href="/securities/{{this.id}}" class="ticker-badge">{{this.ticker}}</a></td>
+                <td>{{formatCurrency this.currentPrice ''}}</td>
+                <td class="text-right change-cell down">-{{abs this.changePct}}%</td>
+              </tr>
+              {{else}}<tr><td colspan="3" class="text-center text-muted" style="padding:1.5rem">No data</td></tr>{{/each}}
+              {{/if}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header mb-3">
+      <h2>All Listed Securities</h2>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Company</th>
+              <th>Type</th>
+              <th>Sector</th>
+              <th class="text-right">Price (RWF)</th>
+              <th class="text-right">Open</th>
+              <th class="text-right">High</th>
+              <th class="text-right">Low</th>
+              <th class="text-right">Change</th>
+              <th class="text-right">Volume</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each securities}}
+            <tr>
+              <td><span class="ticker-badge">{{this.ticker}}</span></td>
+              <td class="fw-600">{{this.companyName}}</td>
+              <td><span class="badge badge-info">{{upper this.type}}</span></td>
+              <td class="text-sm text-muted">{{this.sector}}</td>
+              <td class="text-right price-cell">{{formatCurrency this.currentPrice ''}}</td>
+              <td class="text-right text-sm">{{formatCurrency this.openPrice ''}}</td>
+              <td class="text-right text-sm positive">{{formatCurrency this.highPrice ''}}</td>
+              <td class="text-right text-sm negative">{{formatCurrency this.lowPrice ''}}</td>
+              <td class="text-right">
+                {{#if this.previousClose}}
+                  <span class="change-cell {{#if (gt this.currentPrice this.previousClose)}}up{{else}}down{{/if}}">
+                    {{#if (gt this.currentPrice this.previousClose)}}▲{{else}}▼{{/if}}
+                  </span>
+                {{else}}—{{/if}}
+              </td>
+              <td class="text-right text-sm">{{this.volume}}</td>
+              <td><a href="/securities/{{this.id}}" class="btn btn-secondary btn-sm">Details</a></td>
+            </tr>
+            {{else}}
+            <tr><td colspan="11" class="text-center text-muted" style="padding:2rem">No securities data available</td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

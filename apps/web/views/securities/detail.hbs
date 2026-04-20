@@ -1,0 +1,163 @@
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/securities">Securities</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>{{security.ticker}}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <span class="ticker-badge" style="font-size:1.1rem;padding:4px 12px;">{{security.ticker}}</span>
+          <span class="badge {{badgeClass security.type}}">{{upper security.type}}</span>
+          <span class="badge {{badgeClass security.status}}">{{upper security.status}}</span>
+          {{#if security.isCrossListed}}<span class="badge badge-info">Cross-Listed: {{security.primaryExchange}}</span>{{/if}}
+        </div>
+        <h1 style="color:white;font-size:2rem;">{{security.companyName}}</h1>
+        <p style="color:var(--green-200);">{{security.sector}} · {{security.currency}} · ISIN: {{security.isin}}</p>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:2.5rem;font-weight:800;color:white;font-family:var(--font-heading);">
+          {{formatCurrency security.currentPrice ''}}
+        </div>
+        <div style="font-size:0.9rem;color:var(--green-300);">RWF per share</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;">
+
+      <!-- LEFT: Chart + Stats -->
+      <div>
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3>30-Day Price History</h3>
+          </div>
+          <div class="card-body" style="height:280px;">
+            <canvas id="priceChart"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-4 mb-3">
+          <div class="stat-card">
+            <div class="stat-label">Open</div>
+            <div class="stat-value" style="font-size:1.2rem;">{{formatCurrency security.openPrice ''}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">High</div>
+            <div class="stat-value positive" style="font-size:1.2rem;">{{formatCurrency security.highPrice ''}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Low</div>
+            <div class="stat-value negative" style="font-size:1.2rem;">{{formatCurrency security.lowPrice ''}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Prev Close</div>
+            <div class="stat-value" style="font-size:1.2rem;">{{formatCurrency security.previousClose ''}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Volume</div>
+            <div class="stat-value" style="font-size:1.2rem;">{{security.volume}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Market Cap</div>
+            <div class="stat-value" style="font-size:1rem;">{{formatCurrency security.marketCap 'RWF'}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Shares Out.</div>
+            <div class="stat-value" style="font-size:1.1rem;">{{security.sharesOutstanding}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Div. Yield</div>
+            <div class="stat-value" style="font-size:1.2rem;">{{#if security.dividendYield}}{{formatPct security.dividendYield}}{{else}}—{{/if}}</div>
+          </div>
+        </div>
+
+        {{#if security.description}}
+        <div class="card">
+          <div class="card-header"><h3>About {{security.companyName}}</h3></div>
+          <div class="card-body"><p>{{security.description}}</p></div>
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- RIGHT: Trade Panel -->
+      <div>
+        {{#if isLoggedIn}}
+        <div class="trade-panel">
+          <div class="trade-tabs">
+            <button class="trade-tab buy active" onclick="switchOrderTab('buy')">Buy</button>
+            <button class="trade-tab sell" onclick="switchOrderTab('sell')">Sell</button>
+          </div>
+          <div class="trade-body">
+            <form action="/orders" method="POST">
+              <input type="hidden" name="securityId" value="{{security.id}}">
+              <input type="hidden" name="side" id="orderSide" value="buy">
+              <div class="form-group">
+                <label class="form-label">Order Type</label>
+                <select name="type" id="orderType" class="form-control">
+                  <option value="market">Market Order</option>
+                  <option value="limit">Limit Order</option>
+                </select>
+              </div>
+              <div class="form-group" id="limitPriceRow" style="display:none;">
+                <label class="form-label">Limit Price (RWF)</label>
+                <input type="number" name="limitPrice" class="form-control" step="0.0001" placeholder="{{security.currentPrice}}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Quantity (Shares)</label>
+                <input type="number" name="quantity" class="form-control" min="1" placeholder="e.g. 100" required>
+                <p class="form-hint">Current: RWF {{formatCurrency security.currentPrice ''}}/share</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notes (optional)</label>
+                <input type="text" name="notes" class="form-control" placeholder="Reference or instructions">
+              </div>
+              <button type="submit" id="orderSubmitBtn" class="btn btn-green btn-lg btn-block">Place Buy Order</button>
+              <p style="font-size:0.72rem;color:var(--neutral-400);text-align:center;margin-top:0.75rem;">
+                Orders settle T+2 · 1% broker commission applies
+              </p>
+            </form>
+          </div>
+        </div>
+        {{else}}
+        <div class="card" style="text-align:center;padding:2rem;">
+          <div style="font-size:2rem;margin-bottom:1rem;">🔒</div>
+          <h3 style="margin-bottom:0.5rem;">Sign in to Trade</h3>
+          <p class="text-muted text-sm mb-3">Create a free account to buy and sell {{security.ticker}}</p>
+          <a href="/auth/register" class="btn btn-primary btn-block">Open Account</a>
+          <a href="/auth/login" class="btn btn-secondary btn-block mt-2">Sign In</a>
+        </div>
+        {{/if}}
+
+        <div class="card mt-3">
+          <div class="card-header"><h3>Trading Info</h3></div>
+          <div class="card-body" style="font-size:0.85rem;">
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--neutral-50);">
+              <span class="text-muted">Settlement</span><span class="fw-600">T+2 Business Days</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--neutral-50);">
+              <span class="text-muted">Trading Hours</span><span class="fw-600">09:00 – 12:00 EAT</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--neutral-50);">
+              <span class="text-muted">Currency</span><span class="fw-600">{{security.currency}}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0;">
+              <span class="text-muted">Regulator</span><span class="fw-600">CMA Rwanda</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    renderPriceChart('priceChart', {{{history}}});
+  });
+</script>
