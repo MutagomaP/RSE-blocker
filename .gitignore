@@ -2,4 +2,5 @@
 .env.*
 config/
 *.config.js
-*.config.tsnode_modules
+*.config.ts
+node_modules/
