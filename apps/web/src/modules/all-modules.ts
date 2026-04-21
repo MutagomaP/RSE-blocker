@@ -144,11 +144,20 @@ export class OrdersController {
   @UseGuards(WebAuthGuard)
   async placeOrder(@Req() req: any, @Body() body: any, @Res() res: Response) {
     try {
-      await this.apiService.placeOrder(req.token, body);
+      const payload: any = {
+        securityId: body.securityId,
+        side: body.side,
+        type: body.type || 'market',
+        quantity: Number(body.quantity),
+      };
+      if (body.limitPrice) payload.limitPrice = Number(body.limitPrice);
+      if (body.brokerId) payload.brokerId = body.brokerId;
+      if (body.notes) payload.notes = body.notes;
+      await this.apiService.placeOrder(req.token, payload);
       return res.redirect('/orders?success=Order+placed+successfully');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Failed to place order';
-      return res.redirect(`/orders?error=${encodeURIComponent(msg)}`);
+      return res.redirect(`/orders?error=${encodeURIComponent(Array.isArray(msg) ? msg.join(', ') : msg)}`);
     }
   }
 
