@@ -1,6 +1,6 @@
 # 🇷🇼 RSE Platform — Rwanda Stock Exchange Broker-to-Buyer System
 
-A full-stack NestJS platform connecting **licensed brokers** to **investors** on the Rwanda Stock Exchange (RSE). Inspired by the ZSE training platform architecture.
+A full-stack NestJS platform connecting **licensed brokers** to **investors** on the Rwanda Stock Exchange (RSE). 
 
 ---
 
