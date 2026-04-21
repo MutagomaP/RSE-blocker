@@ -16,7 +16,10 @@ export class HomeController {
       ]);
       return res.render('home/index', {
         title: 'RSE — Rwanda Stock Exchange Platform',
-        market, securities: securities.slice(0, 8), brokers: brokers.slice(0, 6), page: 'home',
+        market,
+        securities: securities.slice(0, 8),
+        brokers: brokers.slice(0, 6),
+        page: 'home',
       });
     } catch {
       return res.render('home/index', {
@@ -33,6 +36,6 @@ export class HomeController {
 
   @Get('how-it-works')
   howItWorks(@Res() res: Response) {
-    return res.render('home/how-it-works', { title: 'How It Works', page: 'how-it-works' });
+    return res.render('home/how-it-works', { title: 'How It Works — RSE', page: 'how-it-works' });
   }
 }

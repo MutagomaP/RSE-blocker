@@ -1,0 +1,257 @@
+<section class="page-hero">
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Welcome back{{#if user}}, {{user.firstName}}{{/if}}
+          {{#if isAdmin}} — <span style="color:var(--gold-300);">Admin</span>{{/if}}
+          {{#if isBroker}} — <span style="color:var(--gold-300);">Broker</span>{{/if}}
+        </p>
+      </div>
+      {{#if isAdmin}}<span class="badge badge-info" style="font-size:0.85rem;padding:6px 14px;">ADMIN</span>{{/if}}
+      {{#if isBroker}}<span class="badge badge-warning" style="font-size:0.85rem;padding:6px 14px;">BROKER</span>{{/if}}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- ── ADMIN / BROKER PANEL ── -->
+    {{#if isAdminOrBroker}}
+    <div class="alert alert-info mb-4">
+      {{#if isAdmin}}👑 You are viewing the Admin dashboard — you can see all orders, trades, and users across the platform.{{/if}}
+      {{#if isBroker}}🏦 You are viewing the Broker dashboard — you can see all orders routed through your firm.{{/if}}
+    </div>
+
+    <!-- Platform-wide stats -->
+    <div class="section-header mb-3"><h2>Platform Overview</h2></div>
+    <div class="grid-4 mb-4">
+      <div class="stat-card">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value">{{allOrders.length}}</div>
+        <div class="stat-change"><a href="/orders" style="color:var(--green-600);">View all →</a></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Orders</div>
+        <div class="stat-value" style="color:var(--gold-500);">
+          {{#each allOrders}}{{#eq this.status 'pending'}}·{{/eq}}{{/each}}
+        </div>
+        <div class="stat-change text-muted">awaiting match</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Executed Trades</div>
+        <div class="stat-value">{{allTrades.length}}</div>
+        <div class="stat-change text-muted">recent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Market Status</div>
+        <div class="stat-value" style="font-size:1.1rem;color:var(--green-600);">Open</div>
+        <div class="stat-change text-muted">09:00 – 12:00 EAT</div>
+      </div>
+    </div>
+
+    <!-- All Orders Table -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>{{#if isAdmin}}All Recent Orders{{/if}}{{#if isBroker}}Orders via Your Firm{{/if}}</h3>
+        <a href="/orders" class="btn btn-secondary btn-sm">View All →</a>
+      </div>
+      {{#if allOrders.length}}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Investor</th><th>Security</th><th>Side</th>
+              <th class="text-right">Qty</th><th class="text-right">Price</th>
+              <th>Broker</th><th>Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each allOrders}}
+            <tr>
+              <td>
+                <div class="fw-600 text-sm">{{this.investor.firstName}} {{this.investor.lastName}}</div>
+                <div class="text-xs text-muted">{{this.investor.email}}</div>
+              </td>
+              <td><span class="ticker-badge">{{this.security.ticker}}</span></td>
+              <td><span class="badge {{badgeClass this.side}}">{{upper this.side}}</span></td>
+              <td class="text-right fw-600">{{this.quantity}}</td>
+              <td class="text-right text-sm">
+                {{#if this.executedPrice}}{{formatCurrency this.executedPrice ''}}
+                {{else}}{{#if this.limitPrice}}{{formatCurrency this.limitPrice ''}}{{else}}Market{{/if}}
+                {{/if}}
+              </td>
+              <td class="text-xs text-muted">{{#if this.broker}}{{this.broker.firmName}}{{else}}Direct{{/if}}</td>
+              <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+              <td class="text-xs text-muted">{{formatDate this.createdAt}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{else}}
+      <div class="card-body">
+        <div class="empty-state" style="padding:2rem;">
+          <div class="empty-state-icon">📭</div>
+          <p class="text-muted">No orders have been placed yet</p>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- All Trades Table -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3>Recent Executed Trades</h3>
+      </div>
+      {{#if allTrades.length}}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th><th>Security</th>
+              <th>Buyer</th><th>Seller</th>
+              <th class="text-right">Qty</th><th class="text-right">Price</th>
+              <th class="text-right">Total Value</th><th>Status</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each allTrades}}
+            <tr>
+              <td class="text-xs text-muted">{{this.tradeReference}}</td>
+              <td><span class="ticker-badge">{{this.security.ticker}}</span></td>
+              <td class="text-sm">{{this.buyer.firstName}} {{this.buyer.lastName}}</td>
+              <td class="text-sm">{{this.seller.firstName}} {{this.seller.lastName}}</td>
+              <td class="text-right fw-600">{{this.quantity}}</td>
+              <td class="text-right">{{formatCurrency this.price ''}}</td>
+              <td class="text-right fw-600">{{formatCurrency this.totalValue 'RWF'}}</td>
+              <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+              <td class="text-xs text-muted">{{formatDate this.executedAt}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{else}}
+      <div class="card-body">
+        <div class="empty-state" style="padding:2rem;">
+          <div class="empty-state-icon">📊</div>
+          <p class="text-muted">No trades executed yet</p>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    <!-- ── INVESTOR + SHARED SECTION ── -->
+    {{#unless isAdmin}}
+    <div class="section-header mb-3"><h2>My Portfolio</h2></div>
+    {{#if portfolio}}
+    <div class="grid-4 mb-4">
+      <div class="stat-card">
+        <div class="stat-label">Portfolio Value</div>
+        <div class="stat-value">{{formatCurrency portfolio.summary.totalValue 'RWF'}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unrealised P&amp;L</div>
+        <div class="stat-value {{#if (positive portfolio.summary.totalUnrealizedPnl)}}positive{{else}}negative{{/if}}">
+          {{formatCurrency portfolio.summary.totalUnrealizedPnl 'RWF'}}
+        </div>
+        <div class="stat-change {{#if (positive portfolio.summary.totalUnrealizedPnlPercent)}}positive{{else}}negative{{/if}}">
+          {{formatPct portfolio.summary.totalUnrealizedPnlPercent}}
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Holdings</div>
+        <div class="stat-value">{{portfolio.summary.holdingsCount}}</div>
+        <div class="stat-change"><a href="/portfolio" style="color:var(--green-600);">View all →</a></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">My Orders</div>
+        <div class="stat-value">{{myOrders.length}}</div>
+        <div class="stat-change"><a href="/orders" style="color:var(--green-600);">Manage →</a></div>
+      </div>
+    </div>
+    {{/if}}
+    {{/unless}}
+
+    <!-- Market + My Recent Orders side by side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+
+      <div class="card">
+        <div class="card-header">
+          <h3>My Recent Orders</h3>
+          <a href="/orders" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        {{#if myOrders.length}}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Security</th><th>Side</th><th class="text-right">Qty</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {{#each myOrders}}
+              <tr>
+                <td><span class="ticker-badge">{{this.security.ticker}}</span></td>
+                <td><span class="badge {{badgeClass this.side}}">{{upper this.side}}</span></td>
+                <td class="text-right fw-600">{{this.quantity}}</td>
+                <td><span class="badge {{badgeClass this.status}}">{{upper this.status}}</span></td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        {{else}}
+        <div class="card-body">
+          <div class="empty-state" style="padding:1.5rem;">
+            <p class="text-muted text-sm">No orders yet</p>
+            <a href="/orders" class="btn btn-green btn-sm mt-2">Place First Order</a>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Market Snapshot</h3>
+          <a href="/market" class="btn btn-secondary btn-sm">Full Market →</a>
+        </div>
+        <div class="card-body">
+          {{#if market}}
+          <div style="display:flex;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--neutral-100);">
+            <div>
+              <div class="text-xs text-muted">RSI Index</div>
+              <div class="fw-700" style="font-size:1.5rem;font-family:var(--font-heading);">{{market.indices.RSI.value}}</div>
+            </div>
+            <div class="{{#if (positive market.indices.RSI.change)}}positive{{else}}negative{{/if}}" style="text-align:right;">
+              <div class="fw-600">{{#if (positive market.indices.RSI.change)}}▲{{else}}▼{{/if}} {{abs market.indices.RSI.change}}%</div>
+              <div class="text-xs">Today</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.75rem;">
+            <span class="text-muted">Advancers</span><span class="positive fw-600">{{market.breadth.advancers}}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.75rem;">
+            <span class="text-muted">Decliners</span><span class="negative fw-600">{{market.breadth.decliners}}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.75rem;">
+            <span class="text-muted">Unchanged</span><span class="fw-600">{{market.breadth.unchanged}}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.875rem;padding-top:0.75rem;border-top:1px solid var(--neutral-100);">
+            <span class="text-muted">Trading Hours</span><span class="fw-600">{{market.tradingHours.open}}–{{market.tradingHours.close}} EAT</span>
+          </div>
+          {{else}}
+          <p class="text-muted">Market data unavailable</p>
+          {{/if}}
+        </div>
+        <div class="card-footer" style="display:flex;gap:0.5rem;">
+          <a href="/orders" class="btn btn-green btn-sm" style="flex:1;text-align:center;">Place Order</a>
+          <a href="/portfolio" class="btn btn-secondary btn-sm" style="flex:1;text-align:center;">Portfolio</a>
+          <a href="/brokers" class="btn btn-secondary btn-sm" style="flex:1;text-align:center;">Brokers</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

@@ -33,7 +33,7 @@ import { MarketModule } from './modules/market/market.module';
     }),
     AuthModule,
     UsersModule,
-    BrokersModule,
+    BrokersModule, 
     SecuritiesModule,
     OrdersModule,
     TradesModule,

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import { User, UserStatus } from '../users/user.entity';
 import { RegisterDto, LoginDto } from './auth.dto';
 
@@ -49,6 +50,11 @@ export class AuthService {
   }
 
   private signToken(user: User) {
-    return this.jwtService.sign({ sub: user.id, email: user.email, role: user.role });
+    return this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      jti: randomUUID(),
+    });
   }
 }

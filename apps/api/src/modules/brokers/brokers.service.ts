@@ -53,12 +53,14 @@ export class BrokersService {
   }
 
   async approve(id: string) {
-    await this.repo.update(id, { status: BrokerStatus.LICENSED });
+    const result = await this.repo.update(id, { status: BrokerStatus.LICENSED });
+    if (!result.affected) throw new NotFoundException('Broker not found');
     return { message: 'Broker approved' };
   }
 
   async suspend(id: string) {
-    await this.repo.update(id, { status: BrokerStatus.SUSPENDED });
+    const result = await this.repo.update(id, { status: BrokerStatus.SUSPENDED });
+    if (!result.affected) throw new NotFoundException('Broker not found');
     return { message: 'Broker suspended' };
   }
 }

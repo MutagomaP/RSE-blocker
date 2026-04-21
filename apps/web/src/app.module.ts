@@ -1,6 +1,6 @@
-import { Module, MiddlewareConsumer, NestModule, Global } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ApiService } from './common/api.service';
+import { ApiModule } from './common/api.module';
 import { AuthMiddleware } from './common/auth.middleware';
 import { HomeModule } from './modules/home/home.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -11,10 +11,10 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { SecuritiesModule } from './modules/securities/securities.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 
-@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ApiModule,
     HomeModule,
     AuthModule,
     MarketModule,
@@ -24,8 +24,6 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     SecuritiesModule,
     DashboardModule,
   ],
-  providers: [ApiService],
-  exports: [ApiService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

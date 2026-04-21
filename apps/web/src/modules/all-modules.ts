@@ -1,5 +1,5 @@
-import { Module, Controller, Get, Render, Param, Query, Req, Res, UseGuards, Post, Body } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Module, Controller, Get, Param, Query, Req, Res, UseGuards, Post, Body } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiService } from '../common/api.service';
 import { WebAuthGuard } from '../common/web-auth.guard';
 
@@ -43,7 +43,12 @@ export class SecuritiesController {
         this.apiService.getSecurity(id),
         this.apiService.getPriceHistory(id),
       ]);
-      return res.render('securities/detail', { title: `${security.ticker} — RSE`, security, history: JSON.stringify(history), page: 'securities' });
+      return res.render('securities/detail', {
+        title: `${security.ticker} — RSE`,
+        security,
+        history: JSON.stringify(history),
+        page: 'securities',
+      });
     } catch {
       return res.redirect('/securities?error=not_found');
     }
@@ -108,12 +113,31 @@ export class OrdersController {
 
   @Get()
   @UseGuards(WebAuthGuard)
-  async index(@Req() req: any, @Res() res: Response) {
-    const [orders, securities] = await Promise.all([
-      this.apiService.getMyOrders(req.token).catch(() => []),
-      this.apiService.getSecurities().catch(() => []),
-    ]);
-    return res.render('orders/index', { title: 'Orders — RSE', orders, securities: JSON.stringify(securities), page: 'orders' });
+  async index(@Req() req: any, @Res() res: Response, @Query('status') status?: string, @Query('side') side?: string) {
+    const role = req.user?.role;
+    const isAdminOrBroker = role === 'admin' || role === 'broker';
+
+    try {
+      const [myOrders, allOrders, securities] = await Promise.all([
+        this.apiService.getMyOrders(req.token).catch(() => []),
+        isAdminOrBroker ? this.apiService.getAllOrders(req.token, status, side).catch(() => []) : Promise.resolve([]),
+        this.apiService.getSecurities().catch(() => []),
+      ]);
+
+      return res.render('orders/index', {
+        title: 'Orders — RSE',
+        myOrders, allOrders, isAdminOrBroker,
+        isAdmin: role === 'admin',
+        isBroker: role === 'broker',
+        securities: JSON.stringify(securities),
+        page: 'orders', status, side,
+      });
+    } catch {
+      return res.render('orders/index', {
+        title: 'Orders — RSE',
+        myOrders: [], allOrders: [], isAdminOrBroker, securities: '[]', page: 'orders',
+      });
+    }
   }
 
   @Post()
@@ -121,7 +145,7 @@ export class OrdersController {
   async placeOrder(@Req() req: any, @Body() body: any, @Res() res: Response) {
     try {
       await this.apiService.placeOrder(req.token, body);
-      return res.redirect('/orders?success=Order placed successfully');
+      return res.redirect('/orders?success=Order+placed+successfully');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Failed to place order';
       return res.redirect(`/orders?error=${encodeURIComponent(msg)}`);
@@ -133,13 +157,12 @@ export class OrdersController {
   async cancelOrder(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
     try {
       await this.apiService.cancelOrder(req.token, id);
-      return res.redirect('/orders?success=Order cancelled');
+      return res.redirect('/orders?success=Order+cancelled');
     } catch {
-      return res.redirect('/orders?error=Failed to cancel order');
+      return res.redirect('/orders?error=Failed+to+cancel+order');
     }
   }
 }
-
 @Module({ controllers: [OrdersController] })
 export class OrdersModule {}
 
@@ -151,28 +174,37 @@ export class DashboardController {
   @Get()
   @UseGuards(WebAuthGuard)
   async index(@Req() req: any, @Res() res: Response) {
+    const role = req.user?.role;
+    const isAdminOrBroker = role === 'admin' || role === 'broker';
+
     try {
-      const [portfolio, orders, market] = await Promise.all([
-        this.apiService.getPortfolio(req.token),
-        this.apiService.getMyOrders(req.token),
-        this.apiService.getMarketOverview(),
+      const [portfolio, myOrders, market, allOrders, allTrades] = await Promise.all([
+        this.apiService.getPortfolio(req.token).catch(() => null),
+        this.apiService.getMyOrders(req.token).catch(() => []),
+        this.apiService.getMarketOverview().catch(() => null),
+        isAdminOrBroker ? this.apiService.getAllOrders(req.token).catch(() => []) : Promise.resolve([]),
+        isAdminOrBroker ? this.apiService.getAllTrades(req.token).catch(() => []) : Promise.resolve([]),
       ]);
+
       return res.render('dashboard/index', {
         title: 'Dashboard — RSE',
         portfolio,
-        orders: orders.slice(0, 5),
-        market,
+        myOrders: myOrders.slice(0, 5),
+        allOrders: allOrders.slice(0, 10),
+        allTrades: allTrades.slice(0, 10),
+        market, isAdminOrBroker,
+        isAdmin: role === 'admin',
+        isBroker: role === 'broker',
         page: 'dashboard',
       });
     } catch {
       return res.render('dashboard/index', {
         title: 'Dashboard — RSE',
-        portfolio: null, orders: [], market: null,
-        page: 'dashboard',
+        portfolio: null, myOrders: [], allOrders: [], allTrades: [],
+        market: null, isAdminOrBroker, page: 'dashboard',
       });
     }
   }
 }
-
 @Module({ controllers: [DashboardController] })
 export class DashboardModule {}

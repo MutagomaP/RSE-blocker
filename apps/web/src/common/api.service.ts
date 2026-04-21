@@ -39,4 +39,22 @@ export class ApiService {
   async getMyTrades(token: string) { const res = await this.client.get('/trades/my-trades', this.withAuth(token)); return res.data; }
   async getMyBrokerProfile(token: string) { const res = await this.client.get('/brokers/my-profile', this.withAuth(token)); return res.data; }
   async updateProfile(token: string, data: any) { const res = await this.client.patch('/users/profile', data, this.withAuth(token)); return res.data; }
+
+  async getAllOrders(token: string, status?: string, side?: string) {
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (side) params.set('side', side);
+    const res = await this.client.get(`/orders/all?${params}`, this.withAuth(token));
+    return res.data;
+  }
+
+  async getAllTrades(token: string) {
+    const res = await this.client.get('/trades', this.withAuth(token));
+    return res.data;
+  }
+
+  async getOrderStats(token: string) {
+    const res = await this.client.get('/orders/stats', this.withAuth(token));
+    return res.data;
+  }
 }

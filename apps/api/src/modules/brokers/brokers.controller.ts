@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Body, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Body, UseGuards, Request, Query, HttpCode, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { BrokersService, CreateBrokerProfileDto } from './brokers.service';
 import { JwtAuthGuard, RolesGuard, Roles } from '../auth/guards';
@@ -49,16 +49,18 @@ export class BrokersController {
   }
 
   @Post(':id/approve')
+  @HttpCode(200)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Approve broker license (admin only)' })
-  approve(@Param('id') id: string) {
+  approve(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.brokersService.approve(id);
   }
 
   @Post(':id/suspend')
+  @HttpCode(200)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Suspend broker (admin only)' })
-  suspend(@Param('id') id: string) {
+  suspend(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.brokersService.suspend(id);
   }
 }
