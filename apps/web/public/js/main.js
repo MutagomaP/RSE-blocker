@@ -11,8 +11,22 @@ document.addEventListener('click', (e) => {
 // ── MOBILE MENU ──
 function toggleMobileMenu() {
   const nav = document.querySelector('.navbar-nav');
-  if (nav) nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+  if (nav) nav.classList.toggle('mobile-open');
 }
+// Close mobile menu when a nav link is clicked
+document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    const nav = document.querySelector('.navbar-nav');
+    if (nav) nav.classList.remove('mobile-open');
+  });
+});
+// Close mobile menu on outside click
+document.addEventListener('click', (e) => {
+  const nav = document.querySelector('.navbar-nav');
+  if (nav && nav.classList.contains('mobile-open') && !e.target.closest('.navbar-inner')) {
+    nav.classList.remove('mobile-open');
+  }
+});
 
 // ── ORDER FORM TABS ──
 function switchOrderTab(side) {

@@ -10,6 +10,17 @@
       <li><a href="/securities" class="nav-link {{#eq page 'securities'}}active{{/eq}}">Securities</a></li>
       <li><a href="/brokers" class="nav-link {{#eq page 'brokers'}}active{{/eq}}">Brokers</a></li>
       <li><a href="/how-it-works" class="nav-link">How It Works</a></li>
+      {{#if isLoggedIn}}
+      <li class="mobile-only"><a href="/portfolio" class="nav-link {{#eq page 'portfolio'}}active{{/eq}}">Portfolio</a></li>
+      <li class="mobile-only"><a href="/dashboard" class="nav-link">Dashboard</a></li>
+      <li class="mobile-only"><a href="/orders" class="nav-link">My Orders</a></li>
+      <li class="mobile-only"><a href="/auth/logout" class="nav-link" style="color:#ff7b7b;">Sign Out</a></li>
+      {{else}}
+      <li class="mobile-only" style="padding:0.75rem 1.5rem;display:flex;gap:0.5rem;">
+        <a href="/auth/login" class="btn btn-ghost btn-sm">Log In</a>
+        <a href="/auth/register" class="btn btn-primary btn-sm">Get Started</a>
+      </li>
+      {{/if}}
     </ul>
 
     <div class="navbar-actions">
