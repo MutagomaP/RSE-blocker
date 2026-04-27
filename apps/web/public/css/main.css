@@ -575,7 +575,7 @@ select.form-control { cursor: pointer; }
 .two-col-layout { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; align-items: start; }
 .detail-layout { grid-template-columns: 2fr 1fr; }
 
-.mobile-only { display: none; }
+.mobile-only { display: none !important; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -583,7 +583,7 @@ select.form-control { cursor: pointer; }
   .navbar-nav { display: none; }
   .navbar-actions .btn-ghost,
   .navbar-actions .btn-primary { display: none; }
-  .mobile-only { display: block; }
+  .mobile-only { display: block !important; }
   .mobile-menu-btn {
     display: flex; flex-direction: column; justify-content: center; gap: 5px;
     background: none; border: none; padding: 6px; cursor: pointer;
