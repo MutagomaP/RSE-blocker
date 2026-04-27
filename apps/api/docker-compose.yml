@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  # ── PostgreSQL Database ────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: rse_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rse_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rse_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── RSE API (NestJS Backend) ───────────────────────
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: rse_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: rse_password
+      DB_NAME: rse_platform
+      JWT_SECRET: change-this-in-production-very-long-secret
+      JWT_EXPIRES_IN: 7d
+      NODE_ENV: production
+      PORT: 3000
+      WEB_URL: http://web:3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── RSE Web (NestJS Frontend) ──────────────────────
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: rse_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://api:3000/api/v1
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
