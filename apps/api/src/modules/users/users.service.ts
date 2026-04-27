@@ -6,11 +6,30 @@ import { IsString, IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProfileDto {
-  @ApiPropertyOptional() @IsOptional() @IsString() firstName?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() lastName?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() phone?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() nationalId?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() csdAccountNumber?: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  nationalId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  csdAccountNumber?: string;
 }
 
 @Injectable()
