@@ -44,5 +44,22 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`RSE API running on: http://localhost:${port}`);
   console.log(`Swagger docs: http://localhost:${port}/api/docs`);
+  
+  // Auto-seed on first run if SEED_ON_START is true
+  if (process.env.SEED_ON_START === 'true') {
+    console.log('🌱 Running database seed...');
+    try {
+      const { exec } = require('child_process');
+      exec('npm run seed', (error: any, stdout: any, stderr: any) => {
+        if (error) {
+          console.error('Seed error:', error);
+          return;
+        }
+        console.log(stdout);
+      });
+    } catch (err) {
+      console.error('Failed to run seed:', err);
+    }
+  }
 }
 bootstrap();
