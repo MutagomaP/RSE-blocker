@@ -1,6 +1,7 @@
 import { Controller, Get, Patch, Param, Body, UseGuards, Request, Post } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { UsersService, UpdateProfileDto } from './users.service';
+import { UsersService } from './users.service';
+import { UpdateProfileDto } from './users.dto';
 import { JwtAuthGuard, RolesGuard, Roles } from '../auth/guards';
 import { UserRole } from './user.entity';
 

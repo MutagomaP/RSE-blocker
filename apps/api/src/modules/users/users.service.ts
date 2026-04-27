@@ -2,35 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserStatus } from './user.entity';
-import { IsString, IsOptional } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-
-export class UpdateProfileDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  lastName?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  nationalId?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  csdAccountNumber?: string;
-}
+import { UpdateProfileDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
