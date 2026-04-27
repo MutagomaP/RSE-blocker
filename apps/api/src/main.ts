@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { SeedService } from './modules/seed/seed.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -47,11 +48,11 @@ async function bootstrap() {
 
   // Auto-seed database on startup if empty
   try {
-    const seedService = app.get('SeedService');
-    await seedService.seedDatabase();
-    console.log('✅ Database seeding completed');
+    const seedService = app.get(SeedService);
+    const result = await seedService.seedDatabase();
+    console.log('✅ Database seeding successful', result.message);
   } catch (error) {
-    console.log('ℹ️ Database seeding skipped or already seeded');
+    console.log('ℹ️ Database seeding skipped:', error.message);
   }
 }
 bootstrap();
